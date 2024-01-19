@@ -1,4 +1,7 @@
-module(name = "nearby", version="0.1")
+module(
+    name = "nearby",
+    version = "0.1",
+)
 
 bazel_dep(name = "nlohmann_json", version = "3.11.3")
 bazel_dep(name = "abseil-cpp", version = "20230802.1", repo_name = "com_google_absl")
@@ -7,12 +10,18 @@ bazel_dep(name = "rules_cc", version = "0.0.9")
 bazel_dep(name = "protobuf", version = "23.1", repo_name = "com_google_protobuf")
 bazel_dep(name = "gflags", version = "2.2.2", repo_name = "com_github_gflags_gflags")
 bazel_dep(name = "googletest", version = "1.14.0")
-bazel_dep(name = "glog", version = "0.6.0",repo_name="com_google_glog")
+bazel_dep(name = "glog", version = "0.6.0", repo_name = "com_google_glog")
 bazel_dep(name = "bazel_skylib", version = "1.5.0")
 bazel_dep(name = "platforms", version = "0.0.8")
 bazel_dep(name = "re2", version = "2021-09-01")
 
+http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
+http_archive(
+    name = "bazel_pkg_config",
+    strip_prefix = "bazel_pkg_config-master",
+    urls = ["https://github.com/cherrry/bazel_pkg_config/archive/master.zip"],
+)
 # -- bazel_dep definitions -- #
 
 non_module_deps = use_extension("//:non_module_deps.bzl", "non_module_deps")
@@ -22,4 +31,12 @@ use_repo(non_module_deps, "com_google_webrtc")
 use_repo(non_module_deps, "com_google_nisaba")
 use_repo(non_module_deps, "com_github_protobuf_matchers")
 
+pkg_deps = use_extension("//:non_module_deps.bzl", "pkg_deps")
+use_repo(pkg_deps, "libsystemd")
+use_repo(pkg_deps, "libcurl")
+use_repo(pkg_deps, "sdbus_cpp")
 # End of extension `non_module_deps`
+#
+# nisaba_public_repositories = use_repo_rule("@com_google_nisaba//bazel:workspace.bzl", "nisaba_public_repositories")
+#
+# nisaba_public_repositories(name="nisaba_public_repositories")
