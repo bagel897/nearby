@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 licenses(["notice"])
+load("@rules_cc//cc:defs.bzl", "cc_library")
 
 cc_library(
     name = "core",
@@ -28,6 +29,7 @@ cc_library(
         "//location/nearby/cpp/sharing:__subpackages__",
         "//location/nearby/testing:__subpackages__",
         "//sharing:__subpackages__",
+        "//rust:__pkg__",
     ],
     deps = [
         ":core_types",
@@ -75,6 +77,7 @@ cc_library(
         "//location/nearby/cpp/sharing:__subpackages__",
         "//location/nearby/testing:__subpackages__",
         "//sharing:__subpackages__",
+        "//rust:__subpackages__",
     ],
     deps = [
         "//internal/platform:base",

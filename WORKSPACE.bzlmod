@@ -129,3 +129,22 @@ pkg_config(
     name = "sdbus_cpp",
     pkg_name = "sdbus-c++",
 )
+
+load("@rules_rust//rust:repositories.bzl", "rules_rust_dependencies", "rust_register_toolchains")
+rules_rust_dependencies()
+rust_register_toolchains()
+
+
+load("@rules_rust//crate_universe:defs.bzl", "crates_repository")
+
+crates_repository(
+    name = "crates",
+    cargo_lockfile = "//rust:Cargo.lock",
+    lockfile = "//rust:Cargo.lock",
+    manifests = ["//rust:Cargo.toml"],
+)
+
+load("@crates//:defs.bzl", "crate_repositories")
+
+crate_repositories()
+

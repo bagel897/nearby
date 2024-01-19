@@ -182,6 +182,7 @@ cc_library(
         "//location/nearby:__subpackages__",
         "//presence:__subpackages__",
         "//third_party/nearby/sharing:__subpackages__",
+        "//rust:__subpackages__",
     ],
     deps = [
         ":comm",
