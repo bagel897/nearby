@@ -1,4 +1,4 @@
-module(name = "nearby", version="")
+module(name = "nearby", version="0.1")
 
 bazel_dep(name = "nlohmann_json", version = "3.11.3")
 bazel_dep(name = "abseil-cpp", version = "20230802.1", repo_name = "com_google_absl")
@@ -11,6 +11,15 @@ bazel_dep(name = "glog", version = "0.6.0",repo_name="com_google_glog")
 bazel_dep(name = "bazel_skylib", version = "1.5.0")
 bazel_dep(name = "platforms", version = "0.0.8")
 bazel_dep(name = "re2", version = "2021-09-01")
+
+
 # -- bazel_dep definitions -- #
+
+non_module_deps = use_extension("//:non_module_deps.bzl", "non_module_deps")
+use_repo(non_module_deps, "com_google_ukey2")
+use_repo(non_module_deps, "aappleby_smhasher")
+use_repo(non_module_deps, "com_google_webrtc")
+use_repo(non_module_deps, "com_google_nisaba")
+use_repo(non_module_deps, "com_github_protobuf_matchers")
 
 # End of extension `non_module_deps`
