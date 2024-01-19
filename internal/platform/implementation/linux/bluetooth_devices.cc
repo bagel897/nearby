@@ -93,7 +93,7 @@ BluetoothDevices::add_new_device(sdbus::ObjectPath device_object_path) {
       std::make_shared<MonitoredBluetoothDevice>(
           system_bus_,
           std::make_shared<bluez::Device>(system_bus_, device_object_path),
-          observers_));
+          device_object_path, observers_));
   if (!inserted)
     device_it->second->UnmarkLost();
   return device_it->second;

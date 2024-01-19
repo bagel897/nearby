@@ -40,7 +40,7 @@ namespace linux {
 // https://developer.android.com/reference/android/bluetooth/BluetoothDevice.html.
 class BluetoothDevice : public api::BluetoothDevice,
                         public api::ble_v2::BlePeripheral {
- public:
+public:
   using UniqueId = std::uint64_t;
 
   BluetoothDevice(const BluetoothDevice &) = delete;
@@ -61,7 +61,8 @@ class BluetoothDevice : public api::BluetoothDevice,
 
   std::optional<std::map<std::string, sdbus::Variant>> ServiceData() {
     auto device = device_.lock();
-    if (device == nullptr) return std::nullopt;
+    if (device == nullptr)
+      return std::nullopt;
 
     try {
       return device->ServiceData();
@@ -72,7 +73,8 @@ class BluetoothDevice : public api::BluetoothDevice,
   }
   bool Bonded() {
     auto device = device_.lock();
-    if (device == nullptr) return false;
+    if (device == nullptr)
+      return false;
 
     try {
       return device->Bonded();
@@ -84,7 +86,8 @@ class BluetoothDevice : public api::BluetoothDevice,
 
   std::optional<sdbus::PendingAsyncCall> Pair() {
     auto device = device_.lock();
-    if (device == nullptr) return std::nullopt;
+    if (device == nullptr)
+      return std::nullopt;
 
     try {
       return device->Pair();
@@ -96,7 +99,8 @@ class BluetoothDevice : public api::BluetoothDevice,
 
   bool CancelPairing() {
     auto device = device_.lock();
-    if (device == nullptr) return false;
+    if (device == nullptr)
+      return false;
 
     try {
       device->CancelPairing();
@@ -109,7 +113,8 @@ class BluetoothDevice : public api::BluetoothDevice,
 
   void SetPairReplyCallback(absl::AnyInvocable<void(const sdbus::Error *)> cb) {
     auto device = device_.lock();
-    if (device != nullptr) device->SetPairReplyCallback(std::move(cb));
+    if (device != nullptr)
+      device->SetPairReplyCallback(std::move(cb));
   }
 
   bool ConnectToProfile(absl::string_view service_uuid);
@@ -117,7 +122,7 @@ class BluetoothDevice : public api::BluetoothDevice,
   void UnmarkLost() { lost_ = false; }
   bool Lost() const { return lost_; }
 
- private:
+private:
   UniqueId unique_id_;
   std::atomic_bool lost_;
 
@@ -130,19 +135,19 @@ class BluetoothDevice : public api::BluetoothDevice,
 class MonitoredBluetoothDevice final
     : public BluetoothDevice,
       public sdbus::ProxyInterfaces<sdbus::Properties_proxy> {
- public:
+public:
   using sdbus::ProxyInterfaces<sdbus::Properties_proxy>::registerProxy;
   using sdbus::ProxyInterfaces<sdbus::Properties_proxy>::unregisterProxy;
   using sdbus::ProxyInterfaces<sdbus::Properties_proxy>::getObjectPath;
 
   MonitoredBluetoothDevice(const MonitoredBluetoothDevice &) = delete;
   MonitoredBluetoothDevice(MonitoredBluetoothDevice &&) = delete;
-  MonitoredBluetoothDevice &operator=(const MonitoredBluetoothDevice &) =
-      delete;
+  MonitoredBluetoothDevice &
+  operator=(const MonitoredBluetoothDevice &) = delete;
   MonitoredBluetoothDevice &operator=(MonitoredBluetoothDevice &&) = delete;
   MonitoredBluetoothDevice(
       std::shared_ptr<sdbus::IConnection> system_bus,
-      std::shared_ptr<bluez::Device> device,
+      std::shared_ptr<bluez::Device> device, std::string objectPath,
       ObserverList<api::BluetoothClassicMedium::Observer> &observers);
   ~MonitoredBluetoothDevice() override { unregisterProxy(); }
 
@@ -153,13 +158,13 @@ class MonitoredBluetoothDevice final
     discovery_cb_ = callback;
   };
 
- protected:
+protected:
   void onPropertiesChanged(
       const std::string &interfaceName,
       const std::map<std::string, sdbus::Variant> &changedProperties,
       const std::vector<std::string> &invalidatedProperties) override;
 
- private:
+private:
   std::shared_ptr<sdbus::IConnection> system_bus_;
   std::shared_ptr<api::BluetoothClassicMedium::DiscoveryCallback>
   GetDiscoveryCallback() ABSL_LOCKS_EXCLUDED(discovery_cb_mutex_) {
@@ -172,11 +177,11 @@ class MonitoredBluetoothDevice final
 
   ObserverList<api::BluetoothClassicMedium::Observer> &observers_;
   absl::Mutex discovery_cb_mutex_;
-  std::weak_ptr<api::BluetoothClassicMedium::DiscoveryCallback> discovery_cb_
-      ABSL_GUARDED_BY(discovery_cb_mutex_);
+  std::weak_ptr<api::BluetoothClassicMedium::DiscoveryCallback>
+      discovery_cb_ ABSL_GUARDED_BY(discovery_cb_mutex_);
 };
 
-}  // namespace linux
-}  // namespace nearby
+} // namespace linux
+} // namespace nearby
 
 #endif

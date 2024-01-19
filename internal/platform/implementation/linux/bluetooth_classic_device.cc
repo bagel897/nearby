@@ -84,7 +84,8 @@ std::string BluetoothDevice::GetMacAddress() const {
 
 bool BluetoothDevice::ConnectToProfile(absl::string_view service_uuid) {
   auto device = device_.lock();
-  if (device == nullptr) return false;
+  if (device == nullptr)
+    return false;
   try {
     device->ConnectProfile(std::string(service_uuid));
     return true;
@@ -96,13 +97,12 @@ bool BluetoothDevice::ConnectToProfile(absl::string_view service_uuid) {
 
 MonitoredBluetoothDevice::MonitoredBluetoothDevice(
     std::shared_ptr<sdbus::IConnection> system_bus,
-    std::shared_ptr<bluez::Device> device,
+    std::shared_ptr<bluez::Device> device, std::string objectPath,
     ObserverList<api::BluetoothClassicMedium::Observer> &observers)
     : BluetoothDevice(std::move(device)),
       ProxyInterfaces<sdbus::Properties_proxy>(*system_bus, bluez::SERVICE_DEST,
-                                               device->getObjectPath()),
-      system_bus_(std::move(system_bus)),
-      observers_(observers) {
+                                               objectPath),
+      system_bus_(std::move(system_bus)), observers_(observers) {
   registerProxy();
 }
 
@@ -144,5 +144,5 @@ void MonitoredBluetoothDevice::onPropertiesChanged(
   }
 }
 
-}  // namespace linux
-}  // namespace nearby
+} // namespace linux
+} // namespace nearby
