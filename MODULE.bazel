@@ -5,15 +5,16 @@ module(
 
 bazel_dep(name = "nlohmann_json", version = "3.11.3")
 bazel_dep(name = "abseil-cpp", version = "20230802.1", repo_name = "com_google_absl")
+git_override(module_name="abseil-cpp", remote="https://github.com/abseil/abseil-cpp", commit="41a2a2555588253dce0e10db4c545463c4a64731")
 bazel_dep(name = "boringssl", version = "0.0.0-20230215-5c22014")
 bazel_dep(name = "rules_cc", version = "0.0.9")
-bazel_dep(name = "protobuf", version = "23.1", repo_name = "com_google_protobuf")
+# bazel_dep(name = "protobuf", version = "23.1", repo_name = "com_google_protobuf")
 bazel_dep(name = "gflags", version = "2.2.2", repo_name = "com_github_gflags_gflags")
-bazel_dep(name = "googletest", version = "1.14.0")
+bazel_dep(name = "googletest", version = "1.14.0.bcr.1")
 bazel_dep(name = "glog", version = "0.6.0", repo_name = "com_google_glog")
 bazel_dep(name = "bazel_skylib", version = "1.5.0")
 bazel_dep(name = "platforms", version = "0.0.8")
-bazel_dep(name = "re2", version = "2021-09-01")
+bazel_dep(name = "re2", version = "2023-09-01")
 
 http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
@@ -27,6 +28,7 @@ http_archive(
 non_module_deps = use_extension("//:non_module_deps.bzl", "non_module_deps")
 use_repo(non_module_deps, "com_google_ukey2")
 use_repo(non_module_deps, "aappleby_smhasher")
+use_repo(non_module_deps, "com_google_protobuf")
 use_repo(non_module_deps, "com_google_webrtc")
 use_repo(non_module_deps, "com_google_nisaba")
 use_repo(non_module_deps, "com_github_protobuf_matchers")

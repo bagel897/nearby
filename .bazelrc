@@ -1,3 +1,6 @@
-build --action_env=BAZEL_CXXOPTS=-std=c++17
+build --features=-layering_check
+common --repo_env=CC=clang
+common --repo_env=CXX=clang++
+common --cxxopt='-std=c++17' --check_visibility=false
 # Definition of --config=memcheck
 build:memcheck --strip=never --test_timeout=3600
