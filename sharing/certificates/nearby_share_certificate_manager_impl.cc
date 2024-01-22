@@ -25,7 +25,7 @@
 #include "chrome/browser/nearby_sharing/common/nearby_share_prefs.h"
 #include "chrome/browser/nearby_sharing/common/nearby_share_profile_info_provider.h"
 #include "chrome/browser/nearby_sharing/common/nearby_share_switches.h"
-#include "chromeos/ash/components/nearby/common/client/nearby_http_result.h"
+#include "sharing/client/nearby_http_result.h"
 #include "sharing/scheduling/nearby_scheduler_factory.h"
 #include "chromeos/ash/services/nearby/public/mojom/nearby_share_settings.mojom.h"
 #include "components/cross_device/logging/logging.h"

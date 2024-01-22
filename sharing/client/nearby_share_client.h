@@ -9,7 +9,7 @@
 #include <string>
 
 #include "base/functional/callback_forward.h"
-#include "chromeos/ash/components/nearby/common/client/nearby_http_result.h"
+#include "sharing/client/nearby_http_result.h"
 
 namespace nearby::sharing::proto {
 class ListContactPeopleRequest;

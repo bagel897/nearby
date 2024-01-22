@@ -14,10 +14,10 @@ cc_library(
   ],
 
   deps = [
-    "//base",
+    "//internal/base",
     "//chrome/browser/nearby_sharing/common",
     "//chrome/browser/nearby_sharing/logging",
-    "//chromeos/ash/components/nearby/common/client",
+    "//sharing/client",
     "//components/cross_device/logging:logging",
     "//components/signin/public/identity_manager",
     "//net",
@@ -37,9 +37,8 @@ cc_library(
   ],
   deps = [
     ":client",
-    "//base",
+    "//internal/base",
     "//chrome/browser/nearby_sharing/common",
-    "//chromeos/ash/components/nearby/common/client",
     "//sharing/proto:share_cc_proto",
   ]
 )
@@ -49,10 +48,9 @@ cc_test(
   srcs = [ "nearby_share_client_impl_unittest.cc" ],
   deps = [
     ":client",
-    "//base",
-    "//base/test:test_support",
+    "//internal/base",
+    "//internal/base/test:test_support",
     "//chrome/browser/nearby_sharing/common",
-    "//chromeos/ash/components/nearby/common/client",
     "//components/signin/public/identity_manager:test_support",
     "//net",
     "//net/traffic_annotation:test_support",

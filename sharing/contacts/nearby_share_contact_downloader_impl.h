@@ -14,7 +14,7 @@
 #include "base/time/time.h"
 #include "base/timer/timer.h"
 #include "chrome/browser/nearby_sharing/contacts/nearby_share_contact_downloader.h"
-#include "chromeos/ash/components/nearby/common/client/nearby_http_result.h"
+#include "sharing/client/nearby_http_result.h"
 #include "third_party/nearby/sharing/proto/contact_rpc.pb.h"
 #include "third_party/nearby/sharing/proto/rpc_resources.pb.h"
 

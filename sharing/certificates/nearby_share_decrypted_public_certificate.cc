@@ -8,20 +8,18 @@
 
 #include "chrome/browser/nearby_sharing/certificates/common.h"
 #include "chrome/browser/nearby_sharing/certificates/constants.h"
-#include "chromeos/ash/components/nearby/common/proto/timestamp.pb.h"
 #include "components/cross_device/logging/logging.h"
 #include "crypto/aead.h"
 #include "crypto/encryptor.h"
 #include "crypto/hmac.h"
 #include "crypto/signature_verifier.h"
+#include "sharing/proto/timestamp.pb.h"
 
 namespace {
 
-bool IsDataValid(base::Time not_before,
-                 base::Time not_after,
+bool IsDataValid(base::Time not_before, base::Time not_after,
                  base::span<const uint8_t> public_key,
-                 crypto::SymmetricKey* secret_key,
-                 base::span<const uint8_t> id,
+                 crypto::SymmetricKey *secret_key, base::span<const uint8_t> id,
                  base::span<const uint8_t> encrypted_metadata,
                  base::span<const uint8_t> metadata_encryption_key_tag) {
   return not_before < not_after && !public_key.empty() && secret_key &&
@@ -35,8 +33,8 @@ bool IsDataValid(base::Time not_before,
 // Attempts to decrypt |encrypted_metadata_key| using the |secret_key|.
 // Return std::nullopt if the decryption was unsuccessful.
 std::optional<std::vector<uint8_t>> DecryptMetadataKey(
-    const NearbyShareEncryptedMetadataKey& encrypted_metadata_key,
-    const crypto::SymmetricKey* secret_key) {
+    const NearbyShareEncryptedMetadataKey &encrypted_metadata_key,
+    const crypto::SymmetricKey *secret_key) {
   std::unique_ptr<crypto::Encryptor> encryptor =
       CreateNearbyShareCtrEncryptor(secret_key, encrypted_metadata_key.salt());
   if (!encryptor) {
@@ -58,10 +56,10 @@ std::optional<std::vector<uint8_t>> DecryptMetadataKey(
 // Attempts to decrypt |encrypted_metadata| with |metadata_encryption_key|,
 // using |authentication_key| as the IV. Returns std::nullopt if the decryption
 // was unsuccessful.
-std::optional<std::vector<uint8_t>> DecryptMetadataPayload(
-    base::span<const uint8_t> encrypted_metadata,
-    base::span<const uint8_t> metadata_encryption_key,
-    const crypto::SymmetricKey* secret_key) {
+std::optional<std::vector<uint8_t>>
+DecryptMetadataPayload(base::span<const uint8_t> encrypted_metadata,
+                       base::span<const uint8_t> metadata_encryption_key,
+                       const crypto::SymmetricKey *secret_key) {
   // Init() keeps a reference to the input key, so that reference must outlive
   // the lifetime of |aead|.
   std::vector<uint8_t> derived_key = DeriveNearbyShareKey(
@@ -92,13 +90,13 @@ bool VerifyMetadataEncryptionKeyTag(
          hmac.Verify(decrypted_metadata_key, metadata_encryption_key_tag);
 }
 
-}  // namespace
+} // namespace
 
 // static
 std::optional<NearbyShareDecryptedPublicCertificate>
 NearbyShareDecryptedPublicCertificate::DecryptPublicCertificate(
-    const nearby::sharing::proto::PublicCertificate& public_certificate,
-    const NearbyShareEncryptedMetadataKey& encrypted_metadata_key) {
+    const nearby::sharing::proto::PublicCertificate &public_certificate,
+    const NearbyShareEncryptedMetadataKey &encrypted_metadata_key) {
   // Note: The PublicCertificate.metadata_encryption_key and
   // PublicCertificate.for_selected_contacts are not returned from the server
   // for remote devices.
@@ -168,29 +166,25 @@ NearbyShareDecryptedPublicCertificate::DecryptPublicCertificate(
 }
 
 NearbyShareDecryptedPublicCertificate::NearbyShareDecryptedPublicCertificate(
-    base::Time not_before,
-    base::Time not_after,
+    base::Time not_before, base::Time not_after,
     std::unique_ptr<crypto::SymmetricKey> secret_key,
-    std::vector<uint8_t> public_key,
-    std::vector<uint8_t> id,
+    std::vector<uint8_t> public_key, std::vector<uint8_t> id,
     nearby::sharing::proto::EncryptedMetadata unencrypted_metadata,
     bool for_self_share)
-    : not_before_(not_before),
-      not_after_(not_after),
-      secret_key_(std::move(secret_key)),
-      public_key_(std::move(public_key)),
+    : not_before_(not_before), not_after_(not_after),
+      secret_key_(std::move(secret_key)), public_key_(std::move(public_key)),
       id_(std::move(id)),
       unencrypted_metadata_(std::move(unencrypted_metadata)),
       for_self_share_(for_self_share) {}
 
 NearbyShareDecryptedPublicCertificate::NearbyShareDecryptedPublicCertificate(
-    const NearbyShareDecryptedPublicCertificate& other) {
+    const NearbyShareDecryptedPublicCertificate &other) {
   *this = other;
 }
 
-NearbyShareDecryptedPublicCertificate&
+NearbyShareDecryptedPublicCertificate &
 NearbyShareDecryptedPublicCertificate::operator=(
-    const NearbyShareDecryptedPublicCertificate& other) {
+    const NearbyShareDecryptedPublicCertificate &other) {
   if (this == &other)
     return *this;
 
@@ -206,11 +200,11 @@ NearbyShareDecryptedPublicCertificate::operator=(
 }
 
 NearbyShareDecryptedPublicCertificate::NearbyShareDecryptedPublicCertificate(
-    NearbyShareDecryptedPublicCertificate&&) = default;
+    NearbyShareDecryptedPublicCertificate &&) = default;
 
-NearbyShareDecryptedPublicCertificate&
+NearbyShareDecryptedPublicCertificate &
 NearbyShareDecryptedPublicCertificate::operator=(
-    NearbyShareDecryptedPublicCertificate&&) = default;
+    NearbyShareDecryptedPublicCertificate &&) = default;
 
 NearbyShareDecryptedPublicCertificate::
     ~NearbyShareDecryptedPublicCertificate() = default;

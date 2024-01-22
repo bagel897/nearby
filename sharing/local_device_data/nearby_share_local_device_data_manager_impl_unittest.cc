@@ -18,10 +18,10 @@
 #include "chrome/browser/nearby_sharing/local_device_data/nearby_share_device_data_updater.h"
 #include "chrome/browser/nearby_sharing/local_device_data/nearby_share_device_data_updater_impl.h"
 #include "chrome/grit/generated_resources.h"
-#include "chromeos/ash/components/nearby/common/scheduling/fake_nearby_scheduler.h"
-#include "chromeos/ash/components/nearby/common/scheduling/fake_nearby_scheduler_factory.h"
-#include "chromeos/ash/components/nearby/common/scheduling/nearby_scheduler_factory.h"
 #include "components/sync_preferences/testing_pref_service_syncable.h"
+#include "sharing/scheduling/fake_nearby_scheduler.h"
+#include "sharing/scheduling/fake_nearby_scheduler_factory.h"
+#include "sharing/scheduling/nearby_scheduler_factory.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "third_party/abseil-cpp/absl/strings/ascii.h"
 #include "third_party/nearby/sharing/proto/device_rpc.pb.h"
@@ -44,10 +44,10 @@ const char16_t kFakeTooLongGivenName[] = u"this is a 33-byte string in utf-8";
 const char kFakeTooLongTruncatedDeviceName[] =
     "this is a 33-...'s Chrome device";
 
-nearby::sharing::proto::UpdateDeviceResponse CreateResponse(
-    const std::optional<std::string>& full_name,
-    const std::optional<std::string>& icon_url,
-    const std::optional<std::string>& icon_token) {
+nearby::sharing::proto::UpdateDeviceResponse
+CreateResponse(const std::optional<std::string> &full_name,
+               const std::optional<std::string> &icon_url,
+               const std::optional<std::string> &icon_token) {
   nearby::sharing::proto::UpdateDeviceResponse response;
   if (full_name)
     response.set_person_name(*full_name);
@@ -77,21 +77,20 @@ std::vector<nearby::sharing::proto::PublicCertificate> GetFakeCertificates() {
   return {std::move(cert1), std::move(cert2)};
 }
 
-}  // namespace
+} // namespace
 
 class NearbyShareLocalDeviceDataManagerImplTest
     : public ::testing::Test,
       public NearbyShareLocalDeviceDataManager::Observer {
- protected:
+protected:
   struct ObserverNotification {
-    ObserverNotification(bool did_device_name_change,
-                         bool did_full_name_change,
+    ObserverNotification(bool did_device_name_change, bool did_full_name_change,
                          bool did_icon_change)
         : did_device_name_change(did_device_name_change),
           did_full_name_change(did_full_name_change),
           did_icon_change(did_icon_change) {}
     ~ObserverNotification() = default;
-    bool operator==(const ObserverNotification& other) const {
+    bool operator==(const ObserverNotification &other) const {
       return did_device_name_change == other.did_device_name_change &&
              did_full_name_change == other.did_full_name_change &&
              did_icon_change == other.did_icon_change;
@@ -142,8 +141,8 @@ class NearbyShareLocalDeviceDataManagerImplTest
   }
 
   void DownloadDeviceData(
-      const std::optional<nearby::sharing::proto::UpdateDeviceResponse>&
-          response) {
+      const std::optional<nearby::sharing::proto::UpdateDeviceResponse>
+          &response) {
     manager_->DownloadDeviceData();
 
     // The scheduler requests a download of device data from the server.
@@ -164,12 +163,12 @@ class NearbyShareLocalDeviceDataManagerImplTest
   }
 
   void UploadContacts(
-      const std::optional<nearby::sharing::proto::UpdateDeviceResponse>&
-          response) {
+      const std::optional<nearby::sharing::proto::UpdateDeviceResponse>
+          &response) {
     std::optional<bool> returned_success;
     manager_->UploadContacts(
         GetFakeContacts(),
-        base::BindOnce([](std::optional<bool>* returned_success,
+        base::BindOnce([](std::optional<bool> *returned_success,
                           bool success) { *returned_success = success; },
                        &returned_success));
 
@@ -191,12 +190,12 @@ class NearbyShareLocalDeviceDataManagerImplTest
   }
 
   void UploadCertificates(
-      const std::optional<nearby::sharing::proto::UpdateDeviceResponse>&
-          response) {
+      const std::optional<nearby::sharing::proto::UpdateDeviceResponse>
+          &response) {
     std::optional<bool> returned_success;
     manager_->UploadCertificates(
         GetFakeCertificates(),
-        base::BindOnce([](std::optional<bool>* returned_success,
+        base::BindOnce([](std::optional<bool> *returned_success,
                           bool success) { *returned_success = success; },
                        &returned_success));
 
@@ -217,23 +216,23 @@ class NearbyShareLocalDeviceDataManagerImplTest
     EXPECT_EQ(response.has_value(), returned_success);
   }
 
-  NearbyShareLocalDeviceDataManager* manager() { return manager_.get(); }
-  FakeNearbyShareProfileInfoProvider* profile_info_provider() {
+  NearbyShareLocalDeviceDataManager *manager() { return manager_.get(); }
+  FakeNearbyShareProfileInfoProvider *profile_info_provider() {
     return &profile_info_provider_;
   }
-  const std::vector<ObserverNotification>& notifications() {
+  const std::vector<ObserverNotification> &notifications() {
     return notifications_;
   }
-  FakeNearbyShareDeviceDataUpdater* updater() {
+  FakeNearbyShareDeviceDataUpdater *updater() {
     return updater_factory_.instances().back();
   }
-  ash::nearby::FakeNearbyScheduler* device_data_scheduler() {
+  ash::nearby::FakeNearbyScheduler *device_data_scheduler() {
     return scheduler_factory_.pref_name_to_periodic_instance()
         .at(prefs::kNearbySharingSchedulerDownloadDeviceDataPrefName)
         .fake_scheduler;
   }
 
- private:
+private:
   void VerifyInitialization() {
     // Verify updater inputs.
     EXPECT_LT(base::Seconds(1), updater_factory_.latest_timeout());
@@ -291,10 +290,10 @@ TEST_F(NearbyShareLocalDeviceDataManagerImplTest, DefaultDeviceName) {
   // Set given name and expect full default device name of the form
   // "<given name>'s <device type>."
   profile_info_provider()->set_given_name(kFakeGivenName);
-  EXPECT_EQ(
-      l10n_util::GetStringFUTF8(IDS_NEARBY_DEFAULT_DEVICE_NAME, kFakeGivenName,
-                                ui::GetChromeOSDeviceName()),
-      manager()->GetDeviceName());
+  EXPECT_EQ(l10n_util::GetStringFUTF8(IDS_NEARBY_DEFAULT_DEVICE_NAME,
+                                      kFakeGivenName,
+                                      ui::GetChromeOSDeviceName()),
+            manager()->GetDeviceName());
 
   // Make sure that when we use a given name that is very long we truncate
   // correctly.

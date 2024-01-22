@@ -16,7 +16,6 @@
 #include "chrome/browser/nearby_sharing/certificates/common.h"
 #include "chrome/browser/nearby_sharing/certificates/constants.h"
 #include "chrome/browser/nearby_sharing/common/nearby_share_switches.h"
-#include "chromeos/ash/components/nearby/common/proto/timestamp.pb.h"
 #include "components/cross_device/logging/logging.h"
 #include "crypto/aead.h"
 #include "crypto/ec_private_key.h"
@@ -25,6 +24,7 @@
 #include "crypto/hmac.h"
 #include "crypto/sha2.h"
 #include "crypto/symmetric_key.h"
+#include "sharing/proto/timestamp.pb.h"
 
 namespace {
 
@@ -47,8 +47,8 @@ base::TimeDelta GenerateRandomOffset() {
 }
 
 // Generates a certificate identifier by hashing the input secret |key|.
-std::vector<uint8_t> CreateCertificateIdFromSecretKey(
-    const crypto::SymmetricKey& key) {
+std::vector<uint8_t>
+CreateCertificateIdFromSecretKey(const crypto::SymmetricKey &key) {
   DCHECK_EQ(crypto::kSHA256Length, kNearbyShareNumBytesCertificateId);
   std::vector<uint8_t> id(kNearbyShareNumBytesCertificateId);
   crypto::SHA256HashString(key.key(), id.data(), id.size());
@@ -71,7 +71,7 @@ std::optional<std::vector<uint8_t>> CreateMetadataEncryptionKeyTag(
   return result;
 }
 
-std::string EncodeString(const std::string& unencoded_string) {
+std::string EncodeString(const std::string &unencoded_string) {
   std::string encoded_string;
   base::Base64UrlEncode(unencoded_string,
                         base::Base64UrlEncodePolicy::INCLUDE_PADDING,
@@ -80,7 +80,7 @@ std::string EncodeString(const std::string& unencoded_string) {
   return encoded_string;
 }
 
-std::optional<std::string> DecodeString(const std::string* encoded_string) {
+std::optional<std::string> DecodeString(const std::string *encoded_string) {
   if (!encoded_string)
     return std::nullopt;
 
@@ -94,28 +94,28 @@ std::optional<std::string> DecodeString(const std::string* encoded_string) {
   return decoded_string;
 }
 
-std::string BytesToEncodedString(const std::vector<uint8_t>& bytes) {
+std::string BytesToEncodedString(const std::vector<uint8_t> &bytes) {
   return EncodeString(std::string(bytes.begin(), bytes.end()));
 }
 
-std::optional<std::vector<uint8_t>> EncodedStringToBytes(
-    const std::string* str) {
+std::optional<std::vector<uint8_t>>
+EncodedStringToBytes(const std::string *str) {
   std::optional<std::string> decoded_str = DecodeString(str);
   return decoded_str ? std::make_optional<std::vector<uint8_t>>(
                            decoded_str->begin(), decoded_str->end())
                      : std::nullopt;
 }
 
-std::string SaltsToString(const std::set<std::vector<uint8_t>>& salts) {
+std::string SaltsToString(const std::set<std::vector<uint8_t>> &salts) {
   std::string str;
   str.reserve(salts.size() * 2 * kNearbyShareNumBytesMetadataEncryptionKeySalt);
-  for (const std::vector<uint8_t>& salt : salts) {
+  for (const std::vector<uint8_t> &salt : salts) {
     str += base::HexEncode(salt);
   }
   return str;
 }
 
-std::set<std::vector<uint8_t>> StringToSalts(const std::string& str) {
+std::set<std::vector<uint8_t>> StringToSalts(const std::string &str) {
   const size_t chars_per_salt =
       2 * kNearbyShareNumBytesMetadataEncryptionKeySalt;
   DCHECK(str.size() % chars_per_salt == 0);
@@ -131,7 +131,7 @@ std::set<std::vector<uint8_t>> StringToSalts(const std::string& str) {
 // Check for a command-line override the certificate validity period, otherwise
 // return the default |kNearbyShareCertificateValidityPeriod|.
 base::TimeDelta GetCertificateValidityPeriod() {
-  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
+  base::CommandLine *command_line = base::CommandLine::ForCurrentProcess();
   if (!command_line->HasSwitch(
           switches::kNearbyShareCertificateValidityPeriodHours)) {
     return kNearbyShareCertificateValidityPeriod;
@@ -153,14 +153,12 @@ base::TimeDelta GetCertificateValidityPeriod() {
   return base::Hours(certificate_validity_period_hours);
 }
 
-}  // namespace
+} // namespace
 
 NearbySharePrivateCertificate::NearbySharePrivateCertificate(
-    nearby_share::mojom::Visibility visibility,
-    base::Time not_before,
+    nearby_share::mojom::Visibility visibility, base::Time not_before,
     nearby::sharing::proto::EncryptedMetadata unencrypted_metadata)
-    : visibility_(visibility),
-      not_before_(not_before),
+    : visibility_(visibility), not_before_(not_before),
       not_after_(not_before_ + GetCertificateValidityPeriod()),
       key_pair_(crypto::ECPrivateKey::Create()),
       secret_key_(crypto::SymmetricKey::GenerateRandomKey(
@@ -174,20 +172,14 @@ NearbySharePrivateCertificate::NearbySharePrivateCertificate(
 }
 
 NearbySharePrivateCertificate::NearbySharePrivateCertificate(
-    nearby_share::mojom::Visibility visibility,
-    base::Time not_before,
-    base::Time not_after,
-    std::unique_ptr<crypto::ECPrivateKey> key_pair,
+    nearby_share::mojom::Visibility visibility, base::Time not_before,
+    base::Time not_after, std::unique_ptr<crypto::ECPrivateKey> key_pair,
     std::unique_ptr<crypto::SymmetricKey> secret_key,
-    std::vector<uint8_t> metadata_encryption_key,
-    std::vector<uint8_t> id,
+    std::vector<uint8_t> metadata_encryption_key, std::vector<uint8_t> id,
     nearby::sharing::proto::EncryptedMetadata unencrypted_metadata,
     std::set<std::vector<uint8_t>> consumed_salts)
-    : visibility_(visibility),
-      not_before_(not_before),
-      not_after_(not_after),
-      key_pair_(std::move(key_pair)),
-      secret_key_(std::move(secret_key)),
+    : visibility_(visibility), not_before_(not_before), not_after_(not_after),
+      key_pair_(std::move(key_pair)), secret_key_(std::move(secret_key)),
       metadata_encryption_key_(std::move(metadata_encryption_key)),
       id_(std::move(id)),
       unencrypted_metadata_(std::move(unencrypted_metadata)),
@@ -196,12 +188,12 @@ NearbySharePrivateCertificate::NearbySharePrivateCertificate(
 }
 
 NearbySharePrivateCertificate::NearbySharePrivateCertificate(
-    const NearbySharePrivateCertificate& other) {
+    const NearbySharePrivateCertificate &other) {
   *this = other;
 }
 
-NearbySharePrivateCertificate& NearbySharePrivateCertificate::operator=(
-    const NearbySharePrivateCertificate& other) {
+NearbySharePrivateCertificate &NearbySharePrivateCertificate::operator=(
+    const NearbySharePrivateCertificate &other) {
   if (this == &other)
     return *this;
 
@@ -221,10 +213,10 @@ NearbySharePrivateCertificate& NearbySharePrivateCertificate::operator=(
 }
 
 NearbySharePrivateCertificate::NearbySharePrivateCertificate(
-    NearbySharePrivateCertificate&& other) = default;
+    NearbySharePrivateCertificate &&other) = default;
 
-NearbySharePrivateCertificate& NearbySharePrivateCertificate::operator=(
-    NearbySharePrivateCertificate&& other) = default;
+NearbySharePrivateCertificate &NearbySharePrivateCertificate::operator=(
+    NearbySharePrivateCertificate &&other) = default;
 
 NearbySharePrivateCertificate::~NearbySharePrivateCertificate() = default;
 
@@ -257,8 +249,8 @@ NearbySharePrivateCertificate::EncryptMetadataKey() {
   return NearbyShareEncryptedMetadataKey(*salt, encrypted_metadata_key);
 }
 
-std::optional<std::vector<uint8_t>> NearbySharePrivateCertificate::Sign(
-    base::span<const uint8_t> payload) const {
+std::optional<std::vector<uint8_t>>
+NearbySharePrivateCertificate::Sign(base::span<const uint8_t> payload) const {
   std::unique_ptr<crypto::ECSignatureCreator> signer(
       crypto::ECSignatureCreator::Create(key_pair_.get()));
 
@@ -363,9 +355,9 @@ base::Value::Dict NearbySharePrivateCertificate::ToDictionary() const {
 }
 
 std::optional<NearbySharePrivateCertificate>
-NearbySharePrivateCertificate::FromDictionary(const base::Value::Dict& dict) {
+NearbySharePrivateCertificate::FromDictionary(const base::Value::Dict &dict) {
   std::optional<int> int_opt;
-  const std::string* str_ptr;
+  const std::string *str_ptr;
   std::optional<std::string> str_opt;
   std::optional<base::Time> time_opt;
   std::optional<std::vector<uint8_t>> bytes_opt;

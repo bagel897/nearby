@@ -245,7 +245,7 @@ cc_test(
         ":nearby_sharing_service",
         ":test_support",
         ":types",
-        "//base:casts",
+        "//internal/base:casts",
         "//connections:core_types",
         "//internal/account",
         "//internal/analytics:event_logger",

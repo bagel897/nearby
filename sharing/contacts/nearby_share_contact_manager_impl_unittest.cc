@@ -23,13 +23,13 @@
 #include "chrome/browser/nearby_sharing/contacts/nearby_share_contact_manager.h"
 #include "chrome/browser/nearby_sharing/contacts/nearby_share_contacts_sorter.h"
 #include "chrome/browser/nearby_sharing/local_device_data/fake_nearby_share_local_device_data_manager.h"
-#include "chromeos/ash/components/nearby/common/scheduling/fake_nearby_scheduler.h"
-#include "chromeos/ash/components/nearby/common/scheduling/fake_nearby_scheduler_factory.h"
-#include "chromeos/ash/components/nearby/common/scheduling/nearby_scheduler_factory.h"
 #include "chromeos/ash/services/nearby/public/mojom/nearby_share_settings.mojom-test-utils.h"
 #include "chromeos/ash/services/nearby/public/mojom/nearby_share_settings.mojom.h"
 #include "components/sync_preferences/testing_pref_service_syncable.h"
 #include "content/public/test/browser_task_environment.h"
+#include "sharing/scheduling/fake_nearby_scheduler.h"
+#include "sharing/scheduling/fake_nearby_scheduler_factory.h"
+#include "sharing/scheduling/nearby_scheduler_factory.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "third_party/nearby/sharing/proto/rpc_resources.pb.h"
 
@@ -41,7 +41,7 @@ const char kTestContactEmailPrefix[] = "email_";
 const char kTestContactPhonePrefix[] = "phone_";
 const char kTestDefaultDeviceName[] = "Josh's Chromebook";
 const char kTestProfileUserName[] = "test@google.com";
-const char* kTestPersonNames[] = {"BBB BBB", "CCC CCC", "AAA AAA"};
+const char *kTestPersonNames[] = {"BBB BBB", "CCC CCC", "AAA AAA"};
 
 // From nearby_share_contact_manager_impl.cc.
 constexpr base::TimeDelta kContactUploadPeriod = base::Hours(24);
@@ -66,8 +66,8 @@ std::set<std::string> TestContactIds(size_t num_contacts) {
   return ids;
 }
 
-std::vector<nearby::sharing::proto::ContactRecord> TestContactRecordList(
-    size_t num_contacts) {
+std::vector<nearby::sharing::proto::ContactRecord>
+TestContactRecordList(size_t num_contacts) {
   std::vector<nearby::sharing::proto::ContactRecord> contact_list;
   for (size_t i = 0; i < num_contacts; ++i) {
     nearby::sharing::proto::ContactRecord contact;
@@ -77,15 +77,15 @@ std::vector<nearby::sharing::proto::ContactRecord> TestContactRecordList(
     contact.set_is_reachable(true);
     // only one of these fields should be set...
     switch ((i % 3)) {
-      case 0:
-        contact.add_identifiers()->set_account_name(GetTestContactEmail(i));
-        break;
-      case 1:
-        contact.add_identifiers()->set_phone_number(GetTestContactPhone(i));
-        break;
-      case 2:
-        contact.add_identifiers()->set_obfuscated_gaia("4938tyah");
-        break;
+    case 0:
+      contact.add_identifiers()->set_account_name(GetTestContactEmail(i));
+      break;
+    case 1:
+      contact.add_identifiers()->set_phone_number(GetTestContactPhone(i));
+      break;
+    case 2:
+      contact.add_identifiers()->set_obfuscated_gaia("4938tyah");
+      break;
     }
     contact_list.push_back(contact);
   }
@@ -97,12 +97,12 @@ std::vector<nearby::sharing::proto::ContactRecord> TestContactRecordList(
 // local device to include itself in the contact list as an allowed contact.
 // Partially from nearby_share_contact_manager_impl.cc.
 std::vector<nearby::sharing::proto::Contact> BuildContactListToUpload(
-    const std::set<std::string>& allowed_contact_ids,
-    const std::vector<nearby::sharing::proto::ContactRecord>& contact_records) {
+    const std::set<std::string> &allowed_contact_ids,
+    const std::vector<nearby::sharing::proto::ContactRecord> &contact_records) {
   std::vector<nearby::sharing::proto::Contact> contacts;
-  for (const auto& contact_record : contact_records) {
+  for (const auto &contact_record : contact_records) {
     bool is_selected = base::Contains(allowed_contact_ids, contact_record.id());
-    for (const auto& identifier : contact_record.identifiers()) {
+    for (const auto &identifier : contact_record.identifiers()) {
       nearby::sharing::proto::Contact contact;
       contact.mutable_identifier()->CopyFrom(identifier);
       contact.set_is_selected(is_selected);
@@ -120,29 +120,29 @@ std::vector<nearby::sharing::proto::Contact> BuildContactListToUpload(
 }
 
 std::vector<nearby::sharing::proto::ContactRecord> MojoContactsToProto(
-    const std::vector<nearby_share::mojom::ContactRecordPtr>& mojo_contacts) {
+    const std::vector<nearby_share::mojom::ContactRecordPtr> &mojo_contacts) {
   std::vector<nearby::sharing::proto::ContactRecord> proto_contacts;
   proto_contacts.reserve(mojo_contacts.size());
-  for (const nearby_share::mojom::ContactRecordPtr& mojo_contact :
+  for (const nearby_share::mojom::ContactRecordPtr &mojo_contact :
        mojo_contacts) {
     nearby::sharing::proto::ContactRecord proto_contact;
     proto_contact.set_id(mojo_contact->id);
     proto_contact.set_person_name(mojo_contact->person_name);
     proto_contact.set_image_url(mojo_contact->image_url.spec());
     proto_contact.set_is_reachable(true);
-    for (const auto& identifier : mojo_contact->identifiers) {
-      auto* proto_identifier = proto_contact.add_identifiers();
+    for (const auto &identifier : mojo_contact->identifiers) {
+      auto *proto_identifier = proto_contact.add_identifiers();
       switch (identifier->which()) {
-        case nearby_share::mojom::ContactIdentifier::Tag::kAccountName:
-          proto_identifier->set_account_name(identifier->get_account_name());
-          break;
-        case nearby_share::mojom::ContactIdentifier::Tag::kObfuscatedGaia:
-          proto_identifier->set_obfuscated_gaia(
-              identifier->get_obfuscated_gaia());
-          break;
-        case nearby_share::mojom::ContactIdentifier::Tag::kPhoneNumber:
-          proto_identifier->set_phone_number(identifier->get_phone_number());
-          break;
+      case nearby_share::mojom::ContactIdentifier::Tag::kAccountName:
+        proto_identifier->set_account_name(identifier->get_account_name());
+        break;
+      case nearby_share::mojom::ContactIdentifier::Tag::kObfuscatedGaia:
+        proto_identifier->set_obfuscated_gaia(
+            identifier->get_obfuscated_gaia());
+        break;
+      case nearby_share::mojom::ContactIdentifier::Tag::kPhoneNumber:
+        proto_identifier->set_phone_number(identifier->get_phone_number());
+        break;
       }
     }
     proto_contacts.push_back(proto_contact);
@@ -151,12 +151,12 @@ std::vector<nearby::sharing::proto::ContactRecord> MojoContactsToProto(
 }
 
 void VerifyDownloadNotificationContacts(
-    const std::set<std::string>& expected_allowed_contact_ids,
-    const std::vector<nearby::sharing::proto::ContactRecord>&
-        expected_unordered_contacts,
-    const std::set<std::string>& notification_allowed_contact_ids,
-    const std::vector<nearby::sharing::proto::ContactRecord>&
-        notification_contacts) {
+    const std::set<std::string> &expected_allowed_contact_ids,
+    const std::vector<nearby::sharing::proto::ContactRecord>
+        &expected_unordered_contacts,
+    const std::set<std::string> &notification_allowed_contact_ids,
+    const std::vector<nearby::sharing::proto::ContactRecord>
+        &notification_contacts) {
   EXPECT_EQ(expected_allowed_contact_ids, notification_allowed_contact_ids);
   EXPECT_EQ(expected_unordered_contacts.size(), notification_contacts.size());
 
@@ -172,9 +172,9 @@ void VerifyDownloadNotificationContacts(
 
 class TestDownloadContactsObserver
     : public nearby_share::mojom::DownloadContactsObserver {
- public:
+public:
   void OnContactsDownloaded(
-      const std::vector<std::string>& allowed_contacts,
+      const std::vector<std::string> &allowed_contacts,
       std::vector<nearby_share::mojom::ContactRecordPtr> contacts,
       uint32_t num_unreachable_contacts_filtered_out) override {
     allowed_contacts_ = allowed_contacts;
@@ -196,12 +196,12 @@ class TestDownloadContactsObserver
   mojo::Receiver<nearby_share::mojom::DownloadContactsObserver> receiver_{this};
 };
 
-}  // namespace
+} // namespace
 
 class NearbyShareContactManagerImplTest
     : public ::testing::Test,
       public NearbyShareContactManager::Observer {
- protected:
+protected:
   struct AllowlistChangedNotification {
     bool were_contacts_added_to_allowlist;
     bool were_contacts_removed_from_allowlist;
@@ -262,8 +262,8 @@ class NearbyShareContactManagerImplTest
   }
 
   void SucceedDownload(
-      const std::vector<nearby::sharing::proto::ContactRecord>& contacts,
-      const std::set<std::string>& expected_allowed_contact_ids,
+      const std::vector<nearby::sharing::proto::ContactRecord> &contacts,
+      const std::set<std::string> &expected_allowed_contact_ids,
       bool expect_upload) {
     TriggerDownloadScheduler();
 
@@ -318,8 +318,8 @@ class NearbyShareContactManagerImplTest
 
   void FinishUpload(
       bool success,
-      const std::vector<nearby::sharing::proto::Contact>& expected_contacts) {
-    FakeNearbyShareLocalDeviceDataManager::UploadContactsCall& call =
+      const std::vector<nearby::sharing::proto::Contact> &expected_contacts) {
+    FakeNearbyShareLocalDeviceDataManager::UploadContactsCall &call =
         local_device_data_manager_.upload_contacts_calls().back();
 
     // Ordering doesn't matter. Otherwise, because of internal sorting,
@@ -368,7 +368,7 @@ class NearbyShareContactManagerImplTest
               download_and_upload_scheduler()->handled_results().back());
   }
 
-  void SetAllowedContacts(const std::set<std::string>& allowed_contact_ids,
+  void SetAllowedContacts(const std::set<std::string> &allowed_contact_ids,
                           bool expect_allowlist_changed) {
     size_t num_download_and_upload_requests =
         download_and_upload_scheduler()->num_immediate_requests();
@@ -376,18 +376,18 @@ class NearbyShareContactManagerImplTest
     manager_->SetAllowedContacts(allowed_contact_ids);
 
     // Verify download/upload requested if allowlist changed.
-    EXPECT_EQ(
-        num_download_and_upload_requests + (expect_allowlist_changed ? 1 : 0),
-        download_and_upload_scheduler()->num_immediate_requests());
+    EXPECT_EQ(num_download_and_upload_requests +
+                  (expect_allowlist_changed ? 1 : 0),
+              download_and_upload_scheduler()->num_immediate_requests());
   }
 
-  PrefService* pref_service() { return &pref_service_; }
+  PrefService *pref_service() { return &pref_service_; }
 
- private:
+private:
   // NearbyShareContactManager::Observer:
   void OnContactsDownloaded(
-      const std::set<std::string>& allowed_contact_ids,
-      const std::vector<nearby::sharing::proto::ContactRecord>& contacts,
+      const std::set<std::string> &allowed_contact_ids,
+      const std::vector<nearby::sharing::proto::ContactRecord> &contacts,
       uint32_t num_unreachable_contacts_filtered_out) override {
     ContactsDownloadedNotification notification;
     notification.allowed_contact_ids = allowed_contact_ids;
@@ -401,17 +401,17 @@ class NearbyShareContactManagerImplTest
     contacts_uploaded_notifications_.push_back(notification);
   }
 
-  FakeNearbyShareContactDownloader* latest_downloader() {
+  FakeNearbyShareContactDownloader *latest_downloader() {
     return downloader_factory_.instances().back();
   }
 
-  ash::nearby::FakeNearbyScheduler* periodic_upload_scheduler() {
+  ash::nearby::FakeNearbyScheduler *periodic_upload_scheduler() {
     return scheduler_factory_.pref_name_to_periodic_instance()
         .at(prefs::kNearbySharingSchedulerPeriodicContactUploadPrefName)
         .fake_scheduler;
   }
 
-  ash::nearby::FakeNearbyScheduler* download_and_upload_scheduler() {
+  ash::nearby::FakeNearbyScheduler *download_and_upload_scheduler() {
     return scheduler_factory_.pref_name_to_periodic_instance()
         .at(prefs::kNearbySharingSchedulerContactDownloadAndUploadPrefName)
         .fake_scheduler;
@@ -457,9 +457,9 @@ class NearbyShareContactManagerImplTest
 
   void VerifyDownloadNotificationSent(
       size_t initial_num_notifications,
-      const std::set<std::string>& expected_allowed_contact_ids,
-      const std::vector<nearby::sharing::proto::ContactRecord>&
-          expected_unordered_contacts) {
+      const std::set<std::string> &expected_allowed_contact_ids,
+      const std::vector<nearby::sharing::proto::ContactRecord>
+          &expected_unordered_contacts) {
     EXPECT_EQ(initial_num_notifications + 1,
               contacts_downloaded_notifications_.size());
 

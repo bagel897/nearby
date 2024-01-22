@@ -18,13 +18,13 @@ cc_library(
     "nearby_share_contacts_sorter.h",
   ],
   deps = [
-    "//base",
+    "//internal/base",
     "//chrome/browser/nearby_sharing/client",
     "//chrome/browser/nearby_sharing/common",
     "//chrome/browser/nearby_sharing/local_device_data",
     "//chrome/browser/nearby_sharing/logging",
-    "//chromeos/ash/components/nearby/common/client",
-    "//chromeos/ash/components/nearby/common/scheduling",
+    "//sharing/client",
+    "//sharing/scheduling",
     "//chromeos/ash/services/nearby/public/mojom",
     "//components/cross_device/logging:logging",
     "//components/prefs",
@@ -45,7 +45,7 @@ cc_library(
 
   deps = [
     ":contacts",
-    "//base",
+    "//internal/base",
     "//sharing/proto:share_cc_proto",
   ]
 )
@@ -62,16 +62,16 @@ cc_test(
   deps = [
     ":contacts",
     ":test_support",
-    "//base",
-    "//base/test:test_support",
+    "//internal/base",
+    "//internal/base/test:test_support",
     "//chrome/browser/nearby_sharing/client",
     "//chrome/browser/nearby_sharing/client:test_support",
     "//chrome/browser/nearby_sharing/common",
     "//chrome/browser/nearby_sharing/common:test_support",
     "//chrome/browser/nearby_sharing/local_device_data:test_support",
-    "//chromeos/ash/components/nearby/common/client",
-    "//chromeos/ash/components/nearby/common/scheduling",
-    "//chromeos/ash/components/nearby/common/scheduling:test_support",
+    "//sharing/client",
+    "//sharing/scheduling",
+    "//sharing/scheduling:test_support",
     "//chromeos/ash/services/nearby/public/mojom",
     "//components/sync_preferences:test_support",
     "//content/test:test_support",

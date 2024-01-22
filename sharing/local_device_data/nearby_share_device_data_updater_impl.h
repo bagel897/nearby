@@ -11,7 +11,7 @@
 #include "base/time/time.h"
 #include "base/timer/timer.h"
 #include "chrome/browser/nearby_sharing/local_device_data/nearby_share_device_data_updater.h"
-#include "chromeos/ash/components/nearby/common/client/nearby_http_result.h"
+#include "sharing/client/nearby_http_result.h"
 #include "third_party/nearby/sharing/proto/device_rpc.pb.h"
 
 class NearbyShareClient;

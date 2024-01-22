@@ -17,7 +17,7 @@
 #include "base/time/time.h"
 #include "chrome/browser/nearby_sharing/client/fake_nearby_share_client.h"
 #include "chrome/browser/nearby_sharing/common/nearby_share_features.h"
-#include "chromeos/ash/components/nearby/common/client/nearby_http_result.h"
+#include "sharing/client/nearby_http_result.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "third_party/nearby/sharing/proto/contact_rpc.pb.h"
 #include "third_party/nearby/sharing/proto/rpc_resources.pb.h"

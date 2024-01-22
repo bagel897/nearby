@@ -15,8 +15,8 @@
 #include "base/memory/raw_ptr.h"
 #include "base/memory/weak_ptr.h"
 #include "chrome/browser/nearby_sharing/client/nearby_share_client.h"
-#include "chromeos/ash/components/nearby/common/client/nearby_api_call_flow.h"
-#include "chromeos/ash/components/nearby/common/client/nearby_http_result.h"
+#include "sharing/client/nearby_api_call_flow.h"
+#include "sharing/client/nearby_http_result.h"
 #include "net/traffic_annotation/network_traffic_annotation.h"
 #include "url/gurl.h"
 
