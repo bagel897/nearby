@@ -40,3 +40,6 @@
 [submodule "third_party/micro-ecc"]
 	path = third_party/micro-ecc
 	url = https://github.com/kmackay/micro-ecc
+[submodule "third_party/webrtc"]
+	path = third_party/webrtc
+	url = https://webrtc.googlesource.com/src/webrtc

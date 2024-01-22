@@ -39,11 +39,15 @@ cc_library(
     # from the HEAD. See
     #   https://github.com/google-research/nisaba
 
-    nisaba_version = "main"
     http_archive(
         name = "com_google_nisaba",
-        url = "https://github.com/google-research/nisaba/archive/refs/heads/%s.zip" % nisaba_version,
-        strip_prefix = "nisaba-%s" % nisaba_version,
+        url = "https://github.com/google-research/nisaba/archive/refs/heads/%s.zip" % "main",
+        strip_prefix = "nisaba-%s" % "main",
+    ) 
+    http_archive(
+        name = "com_google_protobuf",
+        strip_prefix = "protobuf-3.19.6",
+        urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.19.6.tar.gz"],
     )
 
 

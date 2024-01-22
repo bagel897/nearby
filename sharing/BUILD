@@ -123,7 +123,7 @@ cc_library(
         "-DNEARBY_SHARING_DLL",
     ],
     visibility = [
-        "//location/nearby/cpp/sharing:__subpackages__",
+        # "//location/nearby/cpp/sharing:__subpackages__",
         "//sharing:__subpackages__",
     ],
     deps = [

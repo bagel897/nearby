@@ -26,7 +26,7 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         "//sharing/internal/public:logging",
-        "//third_party/icu_utf:icu_utf_assistant",
+        # "//third_party/icu_utf:icu_utf_assistant",
     ],
 )
 

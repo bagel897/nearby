@@ -114,7 +114,7 @@ cc_library(
         "//internal/proto:credential_cc_proto",
         # TODO: Support WebRTC
         "//third_party/webrtc/files/stable/webrtc/api/task_queue:default_task_queue_factory",
-        "//third_party/webrtc/files/stable/webrtc/rtc_base:checks",
+        # "//third_party/webrtc/files/stable/webrtc/rtc_base:checks",
     ],
 )
 
@@ -186,3 +186,4 @@ cc_library(
         "@nlohmann_json//:json",
     ],
 )
+
